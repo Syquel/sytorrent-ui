@@ -1,0 +1,34 @@
+name: CI Workflow
+
+on: [push, pull_request]
+
+jobs:
+  ci-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Preparation: Checkout"
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: "Preparation: Node Setup"
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          cache: npm
+      - name: "Preparation: SonarCloud Cache"
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: "Preparation: NPM Dependencies"
+        run: npm ci
+      - name: "Test: NPM Dependency Audit"
+        run: npm audit --audit-level=low --production
+      - name: "Test: Angular Linting"
+        run: npx ng lint
+      - name: "Test: Angular"
+        run: npx ng test
+      - name: "Build: Angular"
+        run: npx ng build
