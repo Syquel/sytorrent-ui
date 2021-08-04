@@ -1,4 +1,4 @@
-import type {TorrentAccessorResponse} from './transmission-api-types';
+import {TorrentAccessorResponse} from './transmission-api-types';
 
 export class MockData {
 

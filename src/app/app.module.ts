@@ -12,12 +12,11 @@ import {TorrentSettingsComponent} from './torrent-settings/torrent-settings.comp
 import {TorrentAddComponent} from './torrent-add/torrent-add.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {TransmissionApiService} from './transmission-api/transmission-api.service';
-import {MockTransmissionClientService} from './transmission-api/mock-transmission-client.service';
 import {HumanDataSpeedPipe} from './common/human-data-speed.pipe';
 import {HumanTimePipe} from './common/human-time.pipe';
 import {PercentPipe} from './common/percent.pipe';
 import {HumanDataSizePipe} from './common/human-data-size.pipe';
-import {TransmissionClientService} from "./transmission-api/transmission-client.service";
+import {TransmissionClientService} from './transmission-api/transmission-client.service';
 
 @NgModule({
   declarations: [

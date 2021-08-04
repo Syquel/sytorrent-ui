@@ -1,4 +1,4 @@
-import { HumanDataSizePipe } from './human-data-size.pipe';
+import {HumanDataSizePipe} from './human-data-size.pipe';
 
 describe('HumanDataSizePipe', () => {
   it('create an instance', () => {

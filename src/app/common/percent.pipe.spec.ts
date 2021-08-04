@@ -1,4 +1,4 @@
-import { PercentPipe } from './percent.pipe';
+import {PercentPipe} from './percent.pipe';
 
 describe('PercentPipe', () => {
   it('create an instance', () => {

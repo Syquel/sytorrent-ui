@@ -1,7 +1,7 @@
-import type {ComponentFixture} from '@angular/core/testing';
-import {TestBed} from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {TorrentSettingsComponent} from './torrent-settings.component';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('TorrentSettingsComponent', () => {
   let component: TorrentSettingsComponent;
@@ -9,6 +9,9 @@ describe('TorrentSettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [
+        HttpClientTestingModule
+      ],
       declarations: [ TorrentSettingsComponent ]
     })
     .compileComponents();

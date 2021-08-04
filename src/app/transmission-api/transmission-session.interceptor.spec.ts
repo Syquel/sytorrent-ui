@@ -1,9 +1,13 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
-import { TransmissionSessionInterceptor } from './transmission-session.interceptor';
+import {TransmissionSessionInterceptor} from './transmission-session.interceptor';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('TransmissionSessionInterceptor', () => {
   beforeEach(() => TestBed.configureTestingModule({
+    imports: [
+      HttpClientTestingModule
+    ],
     providers: [
       TransmissionSessionInterceptor
       ]

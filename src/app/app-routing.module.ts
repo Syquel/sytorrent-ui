@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
-import type {Routes} from '@angular/router';
-import {RouterModule} from '@angular/router';
+import {RouterModule, Routes} from '@angular/router';
 import {TorrentOverviewComponent} from './torrent-overview/torrent-overview.component';
 import {TorrentSettingsComponent} from './torrent-settings/torrent-settings.component';
 import {TorrentAddComponent} from './torrent-add/torrent-add.component';

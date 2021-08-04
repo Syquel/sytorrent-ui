@@ -1,4 +1,4 @@
-import { HumanDataSpeedPipe } from './human-data-speed.pipe';
+import {HumanDataSpeedPipe} from './human-data-speed.pipe';
 
 describe('HumanDataSpeedPipe', () => {
   it('create an instance', () => {

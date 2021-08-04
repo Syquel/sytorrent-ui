@@ -21,6 +21,9 @@
     "lib": [
       "es2018",
       "dom"
+    ],
+    "types": [
+      "jest"
     ]
   },
   "angularCompilerOptions": {
