@@ -1,0 +1,42 @@
+<div class="list-group">
+  <a *ngFor="let torrentInfo of torrentInfos$ | async; trackBy: getTorrentId"
+     href="#"
+     class="list-group-item list-group-item-action pt-2 pb-2 pr-3 pl-3"
+     [ngClass]="progressClassLookup[torrentInfo.status]"
+     role="progressbar" [attr.aria-valuenow]="torrentInfo.percentDone | percent" aria-valuemin="0" aria-valuemax="100"
+     [style.--progress-done.%]="torrentInfo.percentDone | percent">
+    <div class="d-flex w-100 justify-content-between">
+      <h6 class="mb-1">{{torrentInfo.name}}</h6>
+      <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-outline-primary"><fa-icon [icon]="infoIcon"></fa-icon></button>
+        <button type="button" class="btn btn-outline-danger" (click)="removeTorrent(torrentInfo)"><fa-icon [icon]="deleteIcon"></fa-icon></button>
+      </div>
+    </div>
+    <div class="row mr-0 ml-0">
+      <div class="col pr-0 pl-0">
+        <div class="col pr-0 pl-0">
+          <small><fa-icon [icon]="downloadIcon"></fa-icon> {{ torrentInfo.rateDownload | humanDataSpeed }}</small>
+        </div>
+        <div class="col pr-0 pl-0">
+          <small><fa-icon [icon]="downloadSizeIcon"></fa-icon> {{ torrentInfo.totalSize - torrentInfo.leftUntilDone | humanDataSize }} / {{ torrentInfo.totalSize | humanDataSize}}</small>
+        </div>
+      </div>
+      <div class="col pr-0 pl-0">
+        <div>
+          <small><fa-icon [icon]="uploadIcon"></fa-icon> {{ torrentInfo.rateUpload | humanDataSpeed }}</small>
+        </div>
+        <div>
+          <small><fa-icon [icon]="uploadSizeIcon"></fa-icon> {{ torrentInfo.uploadedEver | humanDataSize }} / {{ torrentInfo.totalSize * torrentInfo.seedRatioLimit | humanDataSize}}</small>
+        </div>
+      </div>
+      <div class="col pr-0 pl-0">
+        <div>
+          <small><fa-icon [icon]="etaIcon"></fa-icon> {{ torrentInfo.eta | humanTime }}</small>
+        </div>
+        <div>
+          <small><fa-icon [icon]="peerIcon"></fa-icon> {{ torrentInfo.peersSendingToUs }} / {{ torrentInfo.peersConnected }}</small>
+        </div>
+      </div>
+    </div>
+  </a>
+</div>

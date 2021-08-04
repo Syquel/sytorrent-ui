@@ -1,0 +1,10 @@
+<form [formGroup]="addTorrentForm" (ngSubmit)="addTorrent()" (reset)="cancel()">
+  <div class="form-group">
+    <label for="torrentUrl">Torrent URL</label>
+    <input type="url" class="form-control" id="torrentUrl" formControlName="torrentUrl" required>
+  </div>
+  <div class="btn-group btn-group-sm" role="group">
+    <button type="submit" class="btn btn-outline-primary">Add</button>
+    <button type="reset" class="btn btn-outline-danger">Cancel</button>
+  </div>
+</form>

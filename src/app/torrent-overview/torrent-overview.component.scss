@@ -1,0 +1,22 @@
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+
+.progress-downloading {
+  background: linear-gradient(to right, scale-color($primary, $alpha: -75%) var(--progress-done), transparent var(--progress-done));
+}
+
+.progress-seeding {
+  background: linear-gradient(to right, scale-color($success, $alpha: -65%) var(--progress-done), scale-color($success, $alpha: -75%) var(--progress-done));
+}
+
+.progress-queued {
+  background: linear-gradient(to right, scale-color($secondary, $alpha: -75%) var(--progress-done), transparent var(--progress-done));
+}
+
+.progress-stopped {
+  background: linear-gradient(to right, scale-color($secondary, $alpha: -75%) var(--progress-done), transparent var(--progress-done));
+}
+
+.progress-checking {
+  background: linear-gradient(to right, scale-color($warning, $alpha: -75%) var(--progress-done), transparent var(--progress-done));
+}
