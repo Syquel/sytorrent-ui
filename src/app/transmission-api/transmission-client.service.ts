@@ -1,51 +1,50 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {
+  AddedTorrent,
   AddTorrentRequest,
-  AddTorrentResponse,
   BlocklistUpdateRequest,
+  BlocklistUpdateResult,
+  DuplicateTorrent,
   FileTorrentCreationOptions,
   FreeSpaceRequest,
-  FreeSpaceResponse,
   FreeSpaceResult,
   MetainfoTorrentCreationOptions,
   MoveTorrentRequest,
   PortCheckingRequest,
-  PortCheckingResponse,
   PortCheckingResult,
-  QueueMovement,
+  QueueMovementAction,
   QueueMovementRequest,
   RemoveTorrentRequest,
   RenameTorrentRequest,
   RenameTorrentResult,
   SessionInfo,
   SessionInfoGetRequest,
-  SessionInfoGetResponse,
   SessionInfoSetRequest,
   SessionStats,
   SessionStatsRequest,
-  SessionStatsResponse,
+  ShutdownRequest,
   TORRENT_INFO_FIELDS,
   TorrentAccessorRequest,
-  TorrentAccessorResponse,
   TorrentAction,
   TorrentActionRequest,
   TorrentInfo,
   TorrentMutatorRequest,
-  TorrentSettings
+  TorrentSettings,
+  TransmissionRequest,
+  TransmissionResponse
 } from './transmission-api-types';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {TransmissionApiService} from './transmission-api.service';
+import {ConfigService} from '../app-config/app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransmissionClientService extends TransmissionApiService {
 
-  private readonly apiUrl: string = 'https://torrent.sypi.boster.de/rpc';
-
-  constructor(private readonly httpClient: HttpClient) {
+  constructor(private readonly httpClient: HttpClient, private readonly appConfig: ConfigService) {
     super();
   }
 
@@ -95,7 +94,7 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: torrentSettings
     };
 
-    return this.httpClient.post<void>(this.apiUrl, torrentMutatorRequest);
+    return this.request<void>(torrentMutatorRequest);
   }
 
   override getTorrents<T extends keyof TorrentInfo>(...fields: T[]): Observable<Pick<TorrentInfo, T>[]> {
@@ -107,9 +106,8 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient
-      .post<TorrentAccessorResponse>(this.apiUrl, torrentAccessorRequest)
-      .pipe(map(value => value.arguments.torrents));
+    return this.request<{ torrents: TorrentInfo[] }>(torrentAccessorRequest)
+      .pipe(map(result => result.torrents));
   }
 
   override getTorrent(torrentInfo: TorrentInfo): Observable<TorrentInfo> {
@@ -122,9 +120,8 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient
-      .post<TorrentAccessorResponse>(this.apiUrl, torrentAccessorRequest)
-      .pipe(map(value => value.arguments.torrents[0]));
+    return this.request<{ torrents: TorrentInfo[] }>(torrentAccessorRequest)
+      .pipe(map(result => result.torrents[0]));
   }
 
   override addTorrent(torrentCreationOptions: FileTorrentCreationOptions | MetainfoTorrentCreationOptions): Observable<TorrentInfo> {
@@ -133,17 +130,15 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: torrentCreationOptions
     };
 
-    return this.httpClient
-      .post<AddTorrentResponse>(this.apiUrl, addTorrentRequest)
+    return this.request<AddedTorrent | DuplicateTorrent>(addTorrentRequest)
       .pipe(
-        map(response => {
-          const responseArguments = response.arguments;
-          if ('torrent-added' in responseArguments) {
-            return responseArguments['torrent-added'];
-          } else if ('torrent-duplicate' in responseArguments) {
-            return responseArguments['torrent-duplicate'];
+        map(result => {
+          if ('torrent-added' in result) {
+            return result['torrent-added'];
+          } else if ('torrent-duplicate' in result) {
+            return result['torrent-duplicate'];
           } else {
-            throw Error('Invalid response while adding new torrent: ' + JSON.stringify(response));
+            throw Error('Invalid response while adding new torrent: ' + JSON.stringify(result));
           }
         })
       );
@@ -158,7 +153,7 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient.post<void>(this.apiUrl, removeTorrentRequest);
+    return this.request<void>(removeTorrentRequest);
   }
 
   override removeTorrent(torrentInfo: TorrentInfo, deleteLocalData: boolean = false): Observable<void> {
@@ -175,7 +170,7 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient.post<void>(this.apiUrl, moveTorrentRequest);
+    return this.request<void>(moveTorrentRequest);
   }
 
   override moveTorrent(torrentInfo: TorrentInfo, newLocation: string, move: boolean = false): Observable<void> {
@@ -192,7 +187,7 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient.post<RenameTorrentResult>(this.apiUrl, renameTorrentRequest);
+    return this.request<RenameTorrentResult>(renameTorrentRequest);
   }
 
   override modifySessionInfo(sessionInfo: Partial<SessionInfo>): Observable<void> {
@@ -201,7 +196,7 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: sessionInfo
     };
 
-    return this.httpClient.post<void>(this.apiUrl, sessionInfoSetRequest);
+    return this.request<void>(sessionInfoSetRequest);
   }
 
   override getSessionInfo(): Observable<SessionInfo> {
@@ -210,9 +205,7 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: {}
     };
 
-    return this.httpClient
-      .post<SessionInfoGetResponse>(this.apiUrl, sessionInfoGetRequest)
-      .pipe(map(response => response.arguments as SessionInfo));
+    return this.request<SessionInfo>(sessionInfoGetRequest);
   }
 
   override getSessionStats(): Observable<SessionStats> {
@@ -221,18 +214,16 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: undefined
     };
 
-    return this.httpClient
-      .post<SessionStatsResponse>(this.apiUrl, sessionStatsRequest)
-      .pipe(map(response => response.arguments));
+    return this.request<SessionStats>(sessionStatsRequest);
   }
 
-  override updateBlocklist(): Observable<void> {
+  override updateBlocklist(): Observable<BlocklistUpdateResult> {
     const blocklistUpdateRequest: BlocklistUpdateRequest = {
       method: 'blocklist-update',
       arguments: undefined
     };
 
-    return this.httpClient.post<void>(this.apiUrl, blocklistUpdateRequest);
+    return this.request<BlocklistUpdateResult>(blocklistUpdateRequest);
   }
 
   override checkPeerPort(): Observable<PortCheckingResult> {
@@ -241,12 +232,19 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: undefined
     };
 
-    return this.httpClient
-      .post<PortCheckingResponse>(this.apiUrl, portCheckingRequest)
-      .pipe(map(response => response.arguments));
+    return this.request<PortCheckingResult>(portCheckingRequest);
   }
 
-  override changeTorrentQueuePosition(torrentInfo: TorrentInfo, queueMovement: QueueMovement): Observable<void> {
+  override shutdown(): Observable<void> {
+    const shutdownRequest: ShutdownRequest = {
+      method: 'session-close',
+      arguments: undefined
+    };
+
+    return this.request<void>(shutdownRequest);
+  }
+
+  override changeTorrentQueuePosition(torrentInfo: TorrentInfo, queueMovement: QueueMovementAction): Observable<void> {
     const queueMovementRequest: QueueMovementRequest = {
       method: queueMovement,
       arguments: {
@@ -254,7 +252,7 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient.post<void>(this.apiUrl, queueMovementRequest);
+    return this.request<void>(queueMovementRequest);
   }
 
   override getFreeSpace(path: string): Observable<FreeSpaceResult> {
@@ -265,9 +263,7 @@ export class TransmissionClientService extends TransmissionApiService {
       }
     };
 
-    return this.httpClient
-      .post<FreeSpaceResponse>(this.apiUrl, freeSpaceRequest)
-      .pipe(map(response => response.arguments));
+    return this.request<FreeSpaceResult>(freeSpaceRequest);
   }
 
   private requestTorrentAction(torrentAction: TorrentAction, torrentInfos: TorrentInfo[]): Observable<void> {
@@ -276,7 +272,21 @@ export class TransmissionClientService extends TransmissionApiService {
       arguments: {ids: torrentInfos.map(value => value.id)}
     };
 
-    return this.httpClient.post<void>(this.apiUrl, torrentActionRequest);
+    return this.request<void>(torrentActionRequest);
+  }
+
+  private request<ARGS_TYPE>(request: TransmissionRequest<string, unknown>): Observable<ARGS_TYPE> {
+    return this.httpClient
+      .post<TransmissionResponse<ARGS_TYPE>>(this.appConfig.get('apiUrl').toString(), request)
+      .pipe(
+        map(response => {
+          if (response.result !== 'success') {
+            throw Error(response.result);
+          }
+
+          return response.arguments;
+        })
+      );
   }
 
 }

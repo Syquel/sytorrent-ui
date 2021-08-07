@@ -28,6 +28,7 @@
     "ngx-typesafe-forms": "^1.5.1",
     "rxjs": "~6.6.0",
     "tslib": "^2.2.0",
+    "utility-types": "^3.10.0",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {

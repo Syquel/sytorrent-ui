@@ -4,6 +4,7 @@ import {shareReplay, switchMap} from 'rxjs/operators';
 import {faChevronDown, faChevronUp, faDownload, faHourglass, faInfo, faTrash, faUpload, faUser} from '@fortawesome/free-solid-svg-icons';
 import {SessionInfo, TorrentInfo, TorrentStatus} from '../transmission-api/transmission-api-types';
 import {TransmissionApiService} from '../transmission-api/transmission-api.service';
+import {ConfigService} from '../app-config/app-config.service';
 
 type TorrentInfoOverview =
   Pick<
@@ -20,7 +21,7 @@ type TorrentInfoOverview =
 })
 export class TorrentOverviewComponent implements OnInit {
 
-  refreshMsInterval: number = 10;
+  refreshMsInterval: number;
   torrentInfos$: Observable<TorrentInfoOverview[]> = of();
   sessionInfo$: Observable<SessionInfo> = of();
 
@@ -43,7 +44,9 @@ export class TorrentOverviewComponent implements OnInit {
     [TorrentStatus.Stopped]: 'progress-stopped'
   };
 
-  constructor(private readonly torrentApi: TransmissionApiService) { }
+  constructor(private readonly torrentApi: TransmissionApiService, private readonly configService: ConfigService) {
+    this.refreshMsInterval = configService.get('defaultRefreshMs');
+  }
 
   ngOnInit(): void {
     this.torrentInfos$ =

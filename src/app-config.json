@@ -1,0 +1,4 @@
+{
+  "apiUrl": "http://localhost:9999/rpc",
+  "defaultRefreshMs": 500
+}

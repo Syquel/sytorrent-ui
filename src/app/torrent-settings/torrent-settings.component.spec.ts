@@ -1,7 +1,8 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {TorrentSettingsComponent} from './torrent-settings.component';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {TransmissionApiService} from '../transmission-api/transmission-api.service';
+import {MockTransmissionClientService} from '../transmission-api/mock-transmission-client.service';
 
 describe('TorrentSettingsComponent', () => {
   let component: TorrentSettingsComponent;
@@ -9,10 +10,10 @@ describe('TorrentSettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule
-      ],
-      declarations: [ TorrentSettingsComponent ]
+      declarations: [ TorrentSettingsComponent ],
+      providers: [
+        { provide: TransmissionApiService, useClass: MockTransmissionClientService }
+      ]
     })
     .compileComponents();
   });

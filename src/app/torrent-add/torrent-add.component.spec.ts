@@ -4,6 +4,8 @@ import {TorrentAddComponent} from './torrent-add.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {RouterTestingModule} from '@angular/router/testing';
+import {ConfigService} from '../app-config/app-config.service';
+import {MockConfigService} from '../app-config/mock-config.service';
 
 describe('TorrentAddComponent', () => {
   let component: TorrentAddComponent;
@@ -16,7 +18,10 @@ describe('TorrentAddComponent', () => {
         ReactiveFormsModule,
         HttpClientTestingModule
       ],
-      declarations: [ TorrentAddComponent ]
+      declarations: [ TorrentAddComponent ],
+      providers: [
+        { provide: ConfigService, useClass: MockConfigService }
+      ]
     })
     .compileComponents();
   });
