@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppRoutingModule} from './app-routing.module';
@@ -17,6 +17,7 @@ import {HumanTimePipe} from './common/human-time.pipe';
 import {PercentPipe} from './common/percent.pipe';
 import {HumanDataSizePipe} from './common/human-data-size.pipe';
 import {TransmissionClientService} from './transmission-api/transmission-client.service';
+import {AppConfigService, ConfigService} from './app-config/app-config.service';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,13 @@ import {TransmissionClientService} from './transmission-api/transmission-client.
     ReactiveFormsModule
   ],
   providers: [
+    { provide: ConfigService, useClass: AppConfigService },
+    {
+      provide: APP_INITIALIZER,
+      deps: [ConfigService],
+      useFactory: (appConfigService: AppConfigService) => (): Promise<void> => appConfigService.init(),
+      multi: true
+    },
     { provide: TransmissionApiService, useClass: TransmissionClientService },
     { provide: HTTP_INTERCEPTORS, useClass: TransmissionSessionInterceptor, multi: true }
   ],
