@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {SessionInfo} from '../transmission-api/transmission-api-types';
-import {TransmissionClientService} from '../transmission-api/transmission-client.service';
+import {TransmissionApiService} from '../transmission-api/transmission-api.service';
 
 @Component({
   selector: 'app-torrent-settings',
@@ -13,7 +13,7 @@ export class TorrentSettingsComponent implements OnInit {
 
   sessionInfo$: Observable<SessionInfo> | null = null;
 
-  constructor(private readonly torrentApi: TransmissionClientService) { }
+  constructor(private readonly torrentApi: TransmissionApiService) { }
 
   ngOnInit(): void {
     this.sessionInfo$ = this.torrentApi.getSessionInfo();
