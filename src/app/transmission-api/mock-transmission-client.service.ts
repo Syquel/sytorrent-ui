@@ -1,18 +1,19 @@
 import {Injectable} from '@angular/core';
 import {TransmissionApiService} from './transmission-api.service';
 import {
+  BlocklistUpdateResult,
   FileTorrentCreationOptions,
   FreeSpaceResult,
   MetainfoTorrentCreationOptions,
   PortCheckingResult,
-  QueueMovement,
+  QueueMovementAction,
   RenameTorrentResult,
   SessionInfo,
-  SessionInfoGetResponse,
   SessionStats,
-  TorrentAccessorResponse,
+  TorrentAccessorResult,
   TorrentInfo,
-  TorrentSettings
+  TorrentSettings,
+  TransmissionResponse
 } from './transmission-api-types';
 import {Observable, of} from 'rxjs';
 import {MockData} from './mock-data';
@@ -22,9 +23,9 @@ import {MockData} from './mock-data';
 })
 export class MockTransmissionClientService extends TransmissionApiService {
 
-  private readonly sessionInfoResponse: SessionInfoGetResponse = {'arguments':{'alt-speed-down':6000,'alt-speed-enabled':false,'alt-speed-time-begin':540,'alt-speed-time-day':127,'alt-speed-time-enabled':false,'alt-speed-time-end':1020,'alt-speed-up':50,'blocklist-enabled':false,'blocklist-size':0,'blocklist-url':'http://www.example.com/blocklist','cache-size-mb':64,'config-dir':'/var/lib/transmission-daemon/.config/transmission-daemon','dht-enabled':true,'download-dir':'/mnt/systore/Transmission','download-queue-enabled':true,'download-queue-size':10,'encryption':'preferred','idle-seeding-limit':60,'idle-seeding-limit-enabled':true,'incomplete-dir':'/mnt/systore/Transmission','incomplete-dir-enabled':false,'lpd-enabled':true,'peer-limit-global':1600,'peer-limit-per-torrent':400,'peer-port':54892,'peer-port-random-on-start':true,'pex-enabled':true,'port-forwarding-enabled':true,'queue-stalled-enabled':true,'queue-stalled-minutes':2,'rename-partial-files':true,'rpc-version':16,'rpc-version-minimum':1,'script-torrent-done-enabled':false,'script-torrent-done-filename':'','seed-queue-enabled':true,'seed-queue-size':10,'seedRatioLimit':1.1000,'seedRatioLimited':true,'speed-limit-down':100,'speed-limit-down-enabled':false,'speed-limit-up':100,'speed-limit-up-enabled':false,'start-added-torrents':true,'trash-original-torrent-files':false,'units':{'memory-bytes':1024,'memory-units':['KiB','MiB','GiB','TiB'],'size-bytes':1000,'size-units':['kB','MB','GB','TB'],'speed-bytes':1000,'speed-units':['kB/s','MB/s','GB/s','TB/s']},'utp-enabled':true,'version':'3.00 (bb6b5a062e)'},'result':'success'};
+  private readonly sessionInfoResponse: TransmissionResponse<SessionInfo> = {'arguments':{'alt-speed-down':6000,'alt-speed-enabled':false,'alt-speed-time-begin':540,'alt-speed-time-day':127,'alt-speed-time-enabled':false,'alt-speed-time-end':1020,'alt-speed-up':50,'blocklist-enabled':false,'blocklist-size':0,'blocklist-url':'http://www.example.com/blocklist','cache-size-mb':64,'config-dir':'/var/lib/transmission-daemon/.config/transmission-daemon','dht-enabled':true,'download-dir':'/mnt/systore/Transmission','download-queue-enabled':true,'download-queue-size':10,'encryption':'preferred','idle-seeding-limit':60,'idle-seeding-limit-enabled':true,'incomplete-dir':'/mnt/systore/Transmission','incomplete-dir-enabled':false,'lpd-enabled':true,'peer-limit-global':1600,'peer-limit-per-torrent':400,'peer-port':54892,'peer-port-random-on-start':true,'pex-enabled':true,'port-forwarding-enabled':true,'queue-stalled-enabled':true,'queue-stalled-minutes':2,'rename-partial-files':true,'rpc-version':16,'rpc-version-minimum':1,'script-torrent-done-enabled':false,'script-torrent-done-filename':'','seed-queue-enabled':true,'seed-queue-size':10,'seedRatioLimit':1.1000,'seedRatioLimited':true,'speed-limit-down':100,'speed-limit-down-enabled':false,'speed-limit-up':100,'speed-limit-up-enabled':false,'start-added-torrents':true,'trash-original-torrent-files':false,'units':{'memory-bytes':1024,'memory-units':['KiB','MiB','GiB','TiB'],'size-bytes':1000,'size-units':['kB','MB','GB','TB'],'speed-bytes':1000,'speed-units':['kB/s','MB/s','GB/s','TB/s']},'utp-enabled':true,'version':'3.00 (bb6b5a062e)'},'result':'success'};
 
-  private readonly torrentAccessorResponses: TorrentAccessorResponse[] = MockData.TORRENT_MOCK_DATA_FULL;
+  private readonly torrentAccessorResponses: TransmissionResponse<TorrentAccessorResult>[] = MockData.TORRENT_MOCK_DATA_FULL;
   private torrentAccessorResponsesIndex: number = -1;
 
   override addTorrent(torrentCreationOptions: FileTorrentCreationOptions | MetainfoTorrentCreationOptions): Observable<TorrentInfo> {
@@ -33,7 +34,7 @@ export class MockTransmissionClientService extends TransmissionApiService {
     return of(this.torrentAccessorResponses[0].arguments.torrents[0]);
   }
 
-  override changeTorrentQueuePosition(torrentInfo: TorrentInfo, queueMovement: QueueMovement): Observable<void> {
+  override changeTorrentQueuePosition(torrentInfo: TorrentInfo, queueMovement: QueueMovementAction): Observable<void> {
     void torrentInfo;
     void queueMovement;
 
@@ -49,7 +50,7 @@ export class MockTransmissionClientService extends TransmissionApiService {
   }
 
   override getSessionInfo(): Observable<SessionInfo> {
-    return of(this.sessionInfoResponse.arguments as SessionInfo);
+    return of(this.sessionInfoResponse.arguments);
   }
 
   override getSessionStats(): Observable<SessionStats> {
@@ -139,6 +140,10 @@ export class MockTransmissionClientService extends TransmissionApiService {
     return of({id: torrentInfo.id, name: newName, path: path});
   }
 
+  override shutdown(): Observable<void> {
+    return of();
+  }
+
   override startTorrent(torrentInfo: TorrentInfo): Observable<void> {
     void torrentInfo;
 
@@ -175,8 +180,8 @@ export class MockTransmissionClientService extends TransmissionApiService {
     return of();
   }
 
-  override updateBlocklist(): Observable<void> {
-    return of();
+  override updateBlocklist(): Observable<BlocklistUpdateResult> {
+    return of({'blocklist-size': 0});
   }
 
   override verifyTorrent(torrentInfo: TorrentInfo): Observable<void> {

@@ -13,7 +13,6 @@ export interface TransmissionResponse<ARGS_TYPE> {
 export type TorrentId = number | string | 'recently-active';
 
 export type TorrentAction = 'torrent-start' | 'torrent-start-now' | 'torrent-stop' | 'torrent-verify' | 'torrent-reannounce';
-
 export type TorrentActionRequest = TransmissionRequest<TorrentAction, { ids?: TorrentId[] }>;
 
 export type TorrentMutatorRequest = TransmissionRequest<'torrent-set', Partial<TorrentSettings>>;
@@ -46,7 +45,9 @@ export interface TorrentSettings {
 
 export type TorrentAccessorRequest = TransmissionRequest<'torrent-get', { ids?: TorrentId[]; fields: (keyof TorrentInfo)[]; format?: 'objects' | 'table' }>;
 
-export type TorrentAccessorResponse = TransmissionResponse<{ torrents: TorrentInfo[] }>;
+export interface TorrentAccessorResult {
+  torrents: TorrentInfo[];
+}
 
 export interface TorrentInfo {
   activityDate: number;
@@ -288,8 +289,6 @@ export interface DuplicateTorrent {
 
 export type AddTorrentRequest = TransmissionRequest<'torrent-add', Partial<TorrentCreationOptions>>;
 
-export type AddTorrentResponse = TransmissionResponse<AddedTorrent | DuplicateTorrent>;
-
 export type RemoveTorrentRequest = TransmissionRequest<'torrent-remove', { ids: TorrentId[]; 'delete-local-data': boolean }>;
 
 export type MoveTorrentRequest = TransmissionRequest<'torrent-set-location', { ids: TorrentId[]; location: string; move?: boolean }>;
@@ -301,8 +300,6 @@ export interface RenameTorrentResult {
 }
 
 export type RenameTorrentRequest = TransmissionRequest<'torrent-rename-path', { ids: TorrentId[]; path: string; name: string }>;
-
-export type RenameTorrentResponse = TransmissionResponse<RenameTorrentResult>;
 
 export interface SessionInfo {
   'alt-speed-down': number;
@@ -378,11 +375,7 @@ export type SessionInfoSetRequest = TransmissionRequest<'session-set', Partial<S
 
 export type SessionInfoGetRequest = TransmissionRequest<'session-get', { fields?: (keyof SessionInfo)[] }>;
 
-export type SessionInfoGetResponse = TransmissionResponse<Partial<SessionInfo>>;
-
 export type SessionStatsRequest = TransmissionRequest<'session-stats', undefined>;
-
-export type SessionStatsResponse = TransmissionResponse<SessionStats>;
 
 export interface SessionStats {
   activeTorrentCount: number;
@@ -404,7 +397,9 @@ export interface SessionStatsEntry {
 
 export type BlocklistUpdateRequest = TransmissionRequest<'blocklist-update', undefined>;
 
-export type BlocklistUpdateResponse = TransmissionResponse<{ 'blocklist-size': number }>;
+export interface BlocklistUpdateResult {
+  'blocklist-size': number;
+}
 
 export interface PortCheckingResult {
   'port-is-open': boolean;
@@ -412,19 +407,14 @@ export interface PortCheckingResult {
 
 export type PortCheckingRequest = TransmissionRequest<'port-test', undefined>;
 
-export type PortCheckingResponse = TransmissionResponse<PortCheckingResult>;
-
 export type ShutdownRequest = TransmissionRequest<'session-close', undefined>;
 
-export type QueueMovement = 'queue-move-top' | 'queue-move-up' | 'queue-move-down' | 'queue-move-bottom';
+export type QueueMovementAction = 'queue-move-top' | 'queue-move-up' | 'queue-move-down' | 'queue-move-bottom';
+export type QueueMovementRequest = TransmissionRequest<QueueMovementAction, { ids: TorrentId[] }>;
 
-export type QueueMovementRequest = TransmissionRequest<QueueMovement, { ids: TorrentId[] }>;
+export type FreeSpaceRequest = TransmissionRequest<'free-space', { path: string }>;
 
 export interface FreeSpaceResult {
   path: string;
   'size-bytes': number;
 }
-
-export type FreeSpaceRequest = TransmissionRequest<'free-space', { path: string }>;
-
-export type FreeSpaceResponse = TransmissionResponse<FreeSpaceResult>;

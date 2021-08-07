@@ -1,9 +1,10 @@
 import {
+  BlocklistUpdateResult,
   FileTorrentCreationOptions,
   FreeSpaceResult,
   MetainfoTorrentCreationOptions,
   PortCheckingResult,
-  QueueMovement,
+  QueueMovementAction,
   RenameTorrentResult,
   SessionInfo,
   SessionStats,
@@ -60,11 +61,13 @@ export abstract class TransmissionApiService {
 
   abstract getSessionStats(): Observable<SessionStats>;
 
-  abstract updateBlocklist(): Observable<void>;
+  abstract updateBlocklist(): Observable<BlocklistUpdateResult>;
 
   abstract checkPeerPort(): Observable<PortCheckingResult>;
 
-  abstract changeTorrentQueuePosition(torrentInfo: TorrentInfo, queueMovement: QueueMovement): Observable<void>;
+  abstract shutdown(): Observable<void>;
+
+  abstract changeTorrentQueuePosition(torrentInfo: TorrentInfo, queueMovement: QueueMovementAction): Observable<void>;
 
   abstract getFreeSpace(path: string): Observable<FreeSpaceResult>;
 
